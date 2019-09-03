@@ -86,28 +86,28 @@ module Fastlane
             key: :projectid,
             description: "gitlab project's id",
             verify_block: proc do |value|
-              UI.user_error!("No projectid given, pass using `projectid: 'projectid'`") unless (value and not value.empty?)
+              UI.user_error!("No projectid given, pass using `projectid: 'projectid'`") unless value
             end
           ),
           FastlaneCore::ConfigItem.new(
             key: :host,
             description: "gitlab host",
             verify_block: proc do |value|
-              UI.user_error!("No gitlab host given, pass using `host: 'host'`") unless (value and not value.empty?)
+              UI.user_error!("No gitlab host given, pass using `host: 'host'`") unless value
             end
           ),
           FastlaneCore::ConfigItem.new(
             key: :token,
             description: "gitlab token",
             verify_block: proc do |value|
-              UI.user_error!("No gitlab token given, pass using `token: 'token'`") unless (value and not value.empty?)
+              UI.user_error!("No gitlab token given, pass using `token: 'token'`") unless value
             end
           ),
           FastlaneCore::ConfigItem.new(
             key: :regex,
             description: 'ruby regex object, like: /^master_([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$/',
             verify_block: proc do |value|
-              UI.user_error!("No regex given, pass using `regex: 'regex'`") unless (value and not value.empty?)
+              UI.user_error!("No regex given, pass using `regex: 'regex'`") unless value
             end,
             is_string: false
           )
