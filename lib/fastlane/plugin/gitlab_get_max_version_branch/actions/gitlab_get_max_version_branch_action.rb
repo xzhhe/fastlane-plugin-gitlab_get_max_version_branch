@@ -39,13 +39,34 @@ module Fastlane
         projectid = params[:projectid]
         host = params[:host]
         token = params[:token]
+        search = params[:search]
         regex = params[:regex]
 
         gc = Gitlab.client(endpoint: host, private_token: token)
         
-        branchs = gc.branches(projectid.to_i, {page: 1, per_page: 1024}).map do |b|
-          b.name
+        branchs = []
+        page = 1
+
+        loop do
+          options = {}
+          options[:page] = page
+          options[:per_page] = 1000
+          options[:search] = search
+
+          get_branchs = gc.branches(projectid, options).map do |b|
+            b.name
+          end
+          break if get_branchs.empty?
+
+          page += 1
+          branchs += get_branchs
         end
+        
+        UI.important "⚠️ branchs:"
+        pp branchs
+        UI.important "⚠️ branchs.count:"
+        pp branchs.count
+
         return false unless branchs
         return false if branchs.empty?
 
@@ -110,6 +131,11 @@ module Fastlane
               UI.user_error!("No regex given, pass using `regex: 'regex'`") unless value
             end,
             is_string: false
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :search,
+            description: 'branch search regex string, like: ^master or mater$',
+            optional: true
           )
         ]
       end
