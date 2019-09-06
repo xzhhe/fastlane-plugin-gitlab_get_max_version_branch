@@ -5,27 +5,15 @@ module Fastlane
   module Actions
     class Version
       include Comparable
-      attr_reader(:full_version, :major, :minor, :patch)
+      attr_reader(:version, :str)
       
-      def initialize(version_str)
-        @full_version = version_str
-        @major, @minor, @patch = version_str.strip.gsub('master_', '').split('.').map(&:to_i)
-      end
-
-      def <=>(other)
-        return nil unless other.is_a?(Version)
-
-        [
-          @major <=> other.major,
-          @minor <=> other.minor,
-          @patch <=> other.patch
-        ].detect do |num|
-          !num.zero?
-        end || 0
+      def initialize(str)
+        @str = str
+        @version = Gem::Version.new(str.strip.gsub('master_', ''))
       end
 
       def to_s
-        @full_version
+        @str
       end
     end
 
@@ -79,7 +67,7 @@ module Fastlane
         Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GITLAB_GET_MAX_VERSIO_NBRANCH_RESULT] = branchs.map { |b|
           Version.new(b)
         }.sort { |v1, v2|
-          v2 <=> v1
+          v2.version <=> v1.version
         }.first.to_s
 
         true
