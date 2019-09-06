@@ -5,8 +5,8 @@ describe Fastlane::Actions::GitlabGetMaxVersionBranchAction do
 
       Fastlane::Actions::GitlabGetMaxVersionBranchAction.run(
         projectid: '849',
-        host: 'https://git.in.zhihu.com/api/v4',
-        token: 'XvtJJyRwyHyVLzfAeuMp',
+        host: 'https://git.in.xxx.com/api/v4',
+        token: 'xxx',
         regex: %r(^master_([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$)
       )
 
