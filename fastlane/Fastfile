@@ -1,10 +1,24 @@
-lane :test do
+lane :app do
   gitlab_get_max_version_branch(
     projectid: '849',
-    host: 'https://git.in.xxx.com/api/v4',
-    token: 'xxx',
+    host: gitlab_host,
+    token: gitlab_token,
     search: '^master',
-    regex: %r(^master_([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$) #=> master_x.y.z
+    regex: /^master_([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$/ #=> master_x.y.z
   )
-  pp Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GITLAB_GET_MAX_VERSIO_NBRANCH_RESULT]
+  master_branch = Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GITLAB_GET_MAX_VERSIO_NBRANCH_RESULT]
+  UI.important master_branch
+
+end
+
+lane :modules do
+  gitlab_get_max_version_branch(
+    via_tag: true,
+    projectid: '16456',
+    host: gitlab_host,
+    token: gitlab_token,
+    regex: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$/
+  )
+  master_branch = Fastlane::Actions.lane_context[Fastlane::Actions::SharedValues::GITLAB_GET_MAX_VERSIO_NBRANCH_RESULT]
+  UI.important master_branch
 end

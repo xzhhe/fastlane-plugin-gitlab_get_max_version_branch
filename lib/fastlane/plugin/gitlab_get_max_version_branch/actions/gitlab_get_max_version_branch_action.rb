@@ -6,7 +6,7 @@ module Fastlane
     class Version
       include Comparable
       attr_reader(:version, :str)
-      
+
       def initialize(str)
         @str = str
         @version = Gem::Version.new(str.strip.gsub('master_', ''))
@@ -25,41 +25,49 @@ module Fastlane
       def self.run(params)
         require 'gitlab'
         projectid = params[:projectid]
-        host = params[:host]
-        token = params[:token]
-        search = params[:search]
-        regex = params[:regex]
+        host      = params[:host]
+        token     = params[:token]
+        search    = params[:search]
+        regex     = params[:regex]
+        via_tag   = params[:via_tag]
+        via_tag  ||= false
 
         gc = Gitlab.client(endpoint: host, private_token: token)
-        
+
         branchs = []
         page = 1
 
         loop do
           options = {}
-          options[:page] = page
+          options[:page]     = page
           options[:per_page] = 1000
-          options[:search] = search
+          options[:search]   = search
 
-          get_branchs = gc.branches(projectid, options).map do |b|
-            b.name
+          get_branchs = if via_tag
+            gc.tags(projectid, options).map do |b|
+              b.name
+            end
+          else
+            gc.branches(projectid, options).map do |b|
+              b.name
+            end
           end
           break if get_branchs.empty?
 
           page += 1
           branchs += get_branchs
         end
-        
-        UI.important "⚠️ branchs:"
+
+        UI.important "branchs:"
         pp branchs
-        UI.important "⚠️ branchs.count:"
+        UI.important "branchs.count:"
         pp branchs.count
 
         return false unless branchs
         return false if branchs.empty?
 
         branchs.select! do |b|
-          b.match(/^master_([1-9]\d|[1-9])(\.([1-9]\d|\d)){2,}$/)
+          b.match(regex)
         end
         return false unless branchs
         return false if branchs.empty?
@@ -124,6 +132,13 @@ module Fastlane
             key: :search,
             description: 'branch search regex string, like: ^master or mater$',
             optional: true
+          ),
+          FastlaneCore::ConfigItem.new(
+            key: :via_tag,
+            description: 'via tag find a max version',
+            optional: true,
+            is_string: false,
+            default_value: false
           )
         ]
       end
